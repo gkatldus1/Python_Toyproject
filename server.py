@@ -4,6 +4,7 @@ import threading
 import time
 
 class Server:
+    ##초기화 함수
 	def __init__(self, ip, port):
 		self.ip = ip
 		self.port = port
@@ -12,39 +13,50 @@ class Server:
 		self.soc.listen(2)
 		self.clients = []
 		self.loop = True
+		self.user_count = 0
+		self.user_thread = []
 
+	#시작 함수
 	def start(self):
 		while self.loop:
 			client_sock, addr = self.soc.accept()
 			self.clients.append(client_sock)
-			t = threading.Thread(target=self.echo_thread, args=(client_sock, addr))
-			t.start()
+			# threading.Thread(target=self.echo_thread, args=(client_sock, addr)).start()
+			threading._start_new_thread(self.echo_thread, (client_sock, addr))
+			
 		
 		self.soc.close()
 
-
+	#스레드로 도는 함수
 	def echo_thread(self, client_socket, address):
 		print ("new connection : " + str(address[0]))
 
+		#클라이언트가 2명이상 들어올때까지 대기
 		print(str(address[0]) + "//wating for other clients...")
 		while len(self.clients) < 2 and self.loop:
-			time.sleep(1000)
+			time.sleep(1)
 
+		#상대 클라이언트 소켓 파악
 		print(str(address[0]) + "//all clients connected")
 		if self.clients[0] == client_socket:
 			rival_sock = self.clients[1]
 		else:
 			rival_sock = self.clients[0]
 
+		#데이터를 수신받고, 수신받은 데이터를 바로 상대에게 전송
+		print (str(address[0]) + "//Receive start")
 		while self.loop:
 			data = client_socket.recv(512).decode()
-			print(str(address[0]) + "//client disconnected")
+			print (str(address[0]) + "//Received:" + data)
 			if(data == 'q' or data == 'Q'):
+				print(str(address[0]) + "//client disconnected")
+				self.loop = False
 				client_socket.close()
 				break
 			else:
-				print (str(address[0]) + "//RECEIVED:" , data)
 				rival_sock.send(data.encode())
+				print (str(address[0]) + "//Send To:" + data)
+			time.sleep(1)
 
 serv = Server("", 5000)
 serv.start();
