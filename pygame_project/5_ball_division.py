@@ -53,7 +53,7 @@ weapons = []
 #무기 이동 속도
 weapon_speed = 10
 
-#공 만들기 (4개 크기에 대해 따로 처리)
+#공 만들기 (4개 크기에 대해 따로 처리)  
 ball_images = [
     pygame.image.load(os.path.join(image_path, "balloon1.png")),
     pygame.image.load(os.path.join(image_path, "balloon2.png")),
@@ -61,7 +61,7 @@ ball_images = [
     pygame.image.load(os.path.join(image_path, "balloon4.png"))]
 
 # 공 크기에 따른 최초 스피드
-ball_speed_y = [-18, -15, -12, -9] # index 0, 1, 2, 3 에 해당하는 값
+ball_speed_y = [-15, -12, -9, -6] # index 0, 1, 2, 3 에 해당하는 값
 
 # 공들
 balls = []
@@ -177,18 +177,32 @@ while running:
 
                 # 가장 작은 크기의 공이 아니라면 다음 단계의 공으로 나눠주기
                 if ball_img_idx < 3:
-                    balls.append({ "pos_x" : 50, #공의 x 좌표
-                                    "pos_y" : 50, #공의 y 좌표
-                                    "img_idx" : 0, #공의 이미지 인덱스
+
+                    # 현재 공 크기 정보를 가지고 옴
+                    ball_width = ball_rect.size[0]
+                    ball_height = ball_rect.size[1]
+
+                    # 나눠진 공 정보
+                    small_ball_rect = ball_images[ball_img_idx + 1].get_rect()
+                    small_ball_width = small_ball_rect.size[0]
+                    small_ball_height = small_ball_rect.size[1]
+
+
+                    # 왼쪽으로 튕겨나가는 작은 공
+                    balls.append({ "pos_x" : ball_pos_x + (ball_width / 2) - (small_ball_width / 2), #공의 x 좌표
+                                    "pos_y" : ball_pos_y + (ball_height / 2) - (small_ball_height / 2), #공의 y 좌표
+                                    "img_idx" : ball_img_idx + 1, #공의 이미지 인덱스
+                                    "to_x": -3, # x축 이동방향, -3이면 왼쪽으로, 3이면 오른쪽으로
+                                    "to_y": -6, # y축 이동방향
+                                    "init_spd_y" : ball_speed_y[ball_img_idx + 1]})
+
+                    # 오른쪽으로 튕겨나가는 작은 공                
+                    balls.append({ "pos_x" : ball_pos_x + (ball_width / 2) - (small_ball_width / 2), #공의 x 좌표
+                                    "pos_y" : ball_pos_y + (ball_height / 2) - (small_ball_height / 2), #공의 y 좌표
+                                    "img_idx" : ball_img_idx + 1, #공의 이미지 인덱스
                                     "to_x": 3, # x축 이동방향, -3이면 왼쪽으로, 3이면 오른쪽으로
                                     "to_y": -6, # y축 이동방향
-                                    "init_spd_y" : ball_speed_y[0]})
-                    balls.append({ "pos_x" : 50, #공의 x 좌표
-                                    "pos_y" : 50, #공의 y 좌표
-                                    "img_idx" : 0, #공의 이미지 인덱스
-                                    "to_x": 3, # x축 이동방향, -3이면 왼쪽으로, 3이면 오른쪽으로
-                                    "to_y": -6, # y축 이동방향
-                                    "init_spd_y" : ball_speed_y[0]})
+                                    "init_spd_y" : ball_speed_y[ball_img_idx + 1]})
 
                 break
 
