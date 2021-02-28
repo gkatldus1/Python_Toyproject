@@ -1,5 +1,6 @@
 import os
 import pygame
+import client
 ###############################################################################
 #기본 초기화 (반드시 해야 하는 것들)
 pygame.init()  # 초기화 (반드시 필요)
@@ -213,23 +214,37 @@ while running:
     if weapon_to_remove > -1:
         del weapons[weapon_to_remove]
         weapon_to_remove = -1
+    # character 딕셔너리로 만들어주기
+    character_dic = { "character" : character, "x_pos" : character_x_pos, "y_pos" : charcter_y_pos }
 
      # 5. 화면에 그리기
     screen.blit(background, (0,0))
     for weapon_x_pos, weapon_y_pos in weapons:
-        screen.blit(weapon, (weapon_x_pos, weapon_y_pos)) 
+        screen.blit(weapon, (weapon_x_pos, weapon_y_pos))
+    # 다른 유저 무기 그리기
+    for weapon_x_pos, weapon_y_pos in another_user_weapons:
+        screen.blit(weapon, (weapon_x_pos, weapon_y_pos))
+
+
 
     for idx, val in enumerate(balls):
         ball_pos_x = val["pos_x"]
         ball_pos_y = val["pos_y"]
         ball_img_idx = val["img_idx"]
         screen.blit(ball_images[ball_img_idx], (ball_pos_x, ball_pos_y))
-
+    # 다른 유저 공 그리기
+    for idx, val in enumerate(another_user_balls):
+        ball_pos_x = val["pos_x"]
+        ball_pos_y = val["pos_y"]
+        ball_img_idx = val["img_idx"]
+        screen.blit(ball_images[ball_img_idx], (ball_pos_x, ball_pos_y))
 
 
     screen.blit(stage, (0, screen_height - stage_height))
     screen.blit(character, (character_x_pos, character_y_pos))
-
+    # 다른 유저 캐릭터 그리기
+    screen.blit(another_user_character["character"], (another_user_character["x_pos"], another_user_character["y_pos"]))
+    
     pygame.display.update() # 게임 화면을 다시 그리기
 
 pygame.quit() 
