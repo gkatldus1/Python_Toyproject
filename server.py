@@ -1,20 +1,23 @@
 # TCP server example
 import socket
 import threading
+import json
 
 def echo_thread(client_socket, address):
 	print ("I got a connection from ", address)
 	while True:
-		data = client_socket.recv(512).decode()
+		data = client_socket.recv(512).decode('UTF-8')
 		if(data == 'q' or data == 'Q'):
 			client_socket.close()
-			break;
+			break
 		else:
 			print ("RECEIVED:" , data)
-			client_socket.send(data.encode())
+			print (json.loads(data)['ball_data'])
+			break
+			#client_socket.send(data.encode())
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(("127.0.0.1", 5000))
+server_socket.bind(("172.16.100.74", 5000))
 server_socket.listen(5)
 
 clients = []
@@ -30,4 +33,4 @@ while True:
 
 server_socket.close()
 print("SOCKET closed... END")
-
+0
