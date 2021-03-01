@@ -8,8 +8,8 @@ import json
 pygame.init()  # 초기화 (반드시 필요)
 
 # 화면 크기 설정
-screen_width = 1500  # 가로크기
-screen_height = 1000  # 세로크기
+screen_width = 1300  # 가로크기
+screen_height = 480   # 세로크기
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 # 화면 타이틀 설정
@@ -234,7 +234,7 @@ while running:
     ###################################################################
     #  서버로 볼, 무기, 캐릭터 정보 보내주기
 
-    dict_character = { "data_type" : 1 , "x_pos" : character_x_pos, "y_pos" : character_y_pos }
+    # dict_character = { "data_type" : 1 , "x_pos" : character_x_pos, "y_pos" : character_y_pos }
     # dict_balls = { "data_type" : 2, "balls" : balls }
     # dict_weapons = { "data_type" : 3, "weapons" : weapons}
     # send_data = json.dumps(dict_character)
@@ -244,13 +244,14 @@ while running:
     # send_data = json.dumps(dict_weapons)
     # clientSocket.send(send_data.encode())
     send_data = json.dumps(balls)
+    clientSocket.send(send_data.encode())
 
     # 정보 받아주기
     data = clientSocket.recv(1024)
     temp = data.decode()
     converted_type_data = json.loads(temp)
-    if converted_type_data["data_type"] == 1:
-         converted_other_user = converted_type_data
+    # if converted_type_data["data_type"] == 1:
+    #      converted_other_user = converted_type_data
     # elif converted_type_data["data_type"] == 2:
     #     converted_other_balls = converted_type_data["balls"]
     # elif converted_type_data["data_type"] == 3:
@@ -286,7 +287,7 @@ while running:
     screen.blit(stage, (0, screen_height - stage_height))
     screen.blit(character, (character_x_pos, character_y_pos))
     # 다른 유저 캐릭터 그리기
-    screen.blit(character, (converted_other_user["x_pos"], converted_other_user["y_pos"]))
+    # screen.blit(character, (converted_other_user["x_pos"], converted_other_user["y_pos"]))
     string = game_font.render(str(data.decode()), True, (255, 255, 255))
     screen.blit(string, (10, 10) )
     pygame.display.update() # 게임 화면을 다시 그리기
