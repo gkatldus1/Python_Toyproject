@@ -13,17 +13,17 @@ class Server:
 		self.soc.listen(2)
 		self.clients = []
 		self.loop = True
+		self.accept_loop = True
 		self.user_count = 0
 		self.user_thread = []
 
 	#시작 함수
 	def start(self):
-		while self.loop:
+		while self.accept_loop:
 			client_sock, addr = self.soc.accept()
 			self.clients.append(client_sock)
-			# threading.Thread(target=self.echo_thread, args=(client_sock, addr)).start()
 			threading._start_new_thread(self.echo_thread, (client_sock, addr))
-			
+			#threading._start_new_thread(self.test, (client_sock, addr))
 		
 		self.soc.close()
 
@@ -58,6 +58,27 @@ class Server:
 				print (str(address[0]) + "//Send To:" + data)
 			time.sleep(1)
 
+	def test(self, client_socket, address):
+		try:
+			print ("new connection : " + str(address[0]))
+			while self.loop:
+				data = client_socket.recv(512).decode()
+				print (str(address[0]) + "//Received:" + data)
+				if(data == 'q' or data == 'Q'):
+					print(str(address[0]) + "//client disconnected")
+					self.loop = False
+					client_socket.close()
+					break
+				client_socket.send(data.encode())
+		except BlockingIOError:
+			return False  # socket is open and reading from it would block
+		except ConnectionResetError:
+			return True  # socket was closed for some other reason
+		except Exception as e:
+			print("unexpected exception when checking if a socket is closed")
+			self.loop = False
+			return False
+		return False
+		
 serv = Server("", 5000)
-serv.start()
 serv.start()
