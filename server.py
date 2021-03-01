@@ -23,12 +23,14 @@ class Server:
 		while self.accept_loop:
 			client_sock, addr = self.soc.accept()
 			self.clients.append(client_sock)
+
+			#각 클라이언트마다 따로 스레드로 송수신
 			threading._start_new_thread(self.echo_thread, (client_sock, addr))
 			#threading._start_new_thread(self.test, (client_sock, addr))
 		
 		self.soc.close()
 
-	#스레드로 도는 함수
+	#상대편에게 보내는 함수
 	def echo_thread(self, client_socket, address):
 		print ("new connection : " + str(address[0]))
 
@@ -36,6 +38,10 @@ class Server:
 		print(str(address[0]) + "//wating for other clients...")
 		while len(self.clients) < 2 and self.loop:
 			time.sleep(1)
+
+		# 두명이 다 들어왔으면 클라이언트들에게 준비 하라는 신호를 보냄
+		# self.clients[0].send("Get Ready".encode())
+		# self.clients[1].send("Get Ready".encode())
 
 		#상대 클라이언트 소켓 파악
 		print(str(address[0]) + "//all clients connected")
@@ -48,6 +54,7 @@ class Server:
 		print (str(address[0]) + "//Receive start")
 		while self.loop:
 			try:
+				data = None
 				data = client_socket.recv(1024).decode()
 				print (str(address[0]) + "//Received:" + data)
 				if(data == 'q' or data == 'Q'):
@@ -57,18 +64,13 @@ class Server:
 					break
 				else:
 					rival_sock.send(data.encode())
-					print (str(address[0]) + "//Send To:" + data)
+					print (str(address[0]) + "//Send:" + data)
 				time.sleep(1)
-			except BlockingIOError:
-				return False  # socket is open and reading from it would block
-			except ConnectionResetError:
-				return True  # socket was closed for some other reason
 			except Exception as e:
 				print("unexpected exception when checking if a socket is closed")
 				self.loop = False
-				return False
-			return False
 
+	#보낸 본인에게 다시 전송
 	def test(self, client_socket, address):
 		try:
 			print ("new connection : " + str(address[0]))
@@ -80,7 +82,7 @@ class Server:
 					self.loop = False
 					client_socket.close()
 					break
-				if data == '':
+				if data == '': # 100번 이상 빈데이터가 들어오면 연결 해제
 					self.count += 1
 					if self.count >= 100:
 						self.loop = False
@@ -89,15 +91,9 @@ class Server:
 				print (str(address[0]) + "//Test Send:" + data)
 				client_socket.send(data.encode())
 			self.loop = True
-		except BlockingIOError:
-			return False  # socket is open and reading from it would block
-		except ConnectionResetError:
-			return True  # socket was closed for some other reason
 		except Exception as e:
-			print("unexpected exception when checking if a socket is closed")
+			print("unexpected exception when checking if a socket is closed") #예외 처리
 			self.loop = False
-			return False
-		return False
 		
 serv = Server("", 5000)
 serv.start()
