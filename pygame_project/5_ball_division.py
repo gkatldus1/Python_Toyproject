@@ -1,8 +1,10 @@
 import os
 import pygame
-import client
-###############################################################################
-#기본 초기화 (반드시 해야 하는 것들)
+from socket import *
+import threading
+import json
+# ###############################################################################
+# #기본 초기화 (반드시 해야 하는 것들)
 pygame.init()  # 초기화 (반드시 필요)
 
 # 화면 크기 설정
@@ -215,15 +217,39 @@ while running:
         del weapons[weapon_to_remove]
         weapon_to_remove = -1
     # character 딕셔너리로 만들어주기
-    character_dic = { "character" : character, "x_pos" : character_x_pos, "y_pos" : charcter_y_pos }
+    character_dic = { "character" : character, "x_pos" : character_x_pos, "y_pos" : character_y_pos }
 
+    ##############################################
+    #  서버로 볼, 무기, 캐릭터 정보 보내주기
+    ip = "14.39.87.152"
+    port = 5000
+    
+    # 소켓 연결
+    clientSocket = socket(AF_INET, SOCK_STREAM)
+    clientSocket.connect((ip, port))
+    # json으로 보내기 위해 딕셔너리로 변환
+    balls_info = { "balls_data" : balls }
+    weapons_info = { "weapons_data" : weapons}
+    character_info = { "character_data" : character_dic}
+    #데이터 json으로 변환
+    converted_balls_info = json.dumps(balls_info)
+    converted_weapons_info = json.dumps(weapons_info)
+    # converted_character_info = json.dumps(character_info)
+    print("연결 확인됐습니다.")
+    clientSocket.send(converted_balls_info.encode())
+    clientSocket.send(converted_weapons_info.encode())
+    # clientSocket.send(converted_character_info.encode())
+
+    clientSocket.close
+
+    #################################################
      # 5. 화면에 그리기
     screen.blit(background, (0,0))
     for weapon_x_pos, weapon_y_pos in weapons:
         screen.blit(weapon, (weapon_x_pos, weapon_y_pos))
     # 다른 유저 무기 그리기
-    for weapon_x_pos, weapon_y_pos in another_user_weapons:
-        screen.blit(weapon, (weapon_x_pos, weapon_y_pos))
+    # for weapon_x_pos, weapon_y_pos in another_user_weapons:
+    #     screen.blit(weapon, (weapon_x_pos, weapon_y_pos))
 
 
 
@@ -233,17 +259,17 @@ while running:
         ball_img_idx = val["img_idx"]
         screen.blit(ball_images[ball_img_idx], (ball_pos_x, ball_pos_y))
     # 다른 유저 공 그리기
-    for idx, val in enumerate(another_user_balls):
-        ball_pos_x = val["pos_x"]
-        ball_pos_y = val["pos_y"]
-        ball_img_idx = val["img_idx"]
-        screen.blit(ball_images[ball_img_idx], (ball_pos_x, ball_pos_y))
+    # for idx, val in enumerate(another_user_balls):
+    #     ball_pos_x = val["pos_x"]
+    #     ball_pos_y = val["pos_y"]
+    #     ball_img_idx = val["img_idx"]
+    #     screen.blit(ball_images[ball_img_idx], (ball_pos_x, ball_pos_y))
 
 
     screen.blit(stage, (0, screen_height - stage_height))
     screen.blit(character, (character_x_pos, character_y_pos))
     # 다른 유저 캐릭터 그리기
-    screen.blit(another_user_character["character"], (another_user_character["x_pos"], another_user_character["y_pos"]))
+    # screen.blit(another_user_character["character"], (another_user_character["x_pos"], another_user_character["y_pos"]))
     
     pygame.display.update() # 게임 화면을 다시 그리기
 
