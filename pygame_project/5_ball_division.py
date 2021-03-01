@@ -82,6 +82,11 @@ balls.append({
 weapon_to_remove = -1
 ball_to_remove = -1
 
+# 소켓 연결
+ip = "172.30.1.14"
+port = 5000
+clientSocket = socket(AF_INET, SOCK_STREAM)
+clientSocket.connect((ip, port))
 
 running = True
 while running:
@@ -216,33 +221,15 @@ while running:
     if weapon_to_remove > -1:
         del weapons[weapon_to_remove]
         weapon_to_remove = -1
-    # character 딕셔너리로 만들어주기
-    character_dic = { "character" : character, "x_pos" : character_x_pos, "y_pos" : character_y_pos }
 
-    ##############################################
+
+    ###################################################################
     #  서버로 볼, 무기, 캐릭터 정보 보내주기
-    ip = "14.39.87.152"
-    port = 5000
+
+
     
-    # 소켓 연결
-    clientSocket = socket(AF_INET, SOCK_STREAM)
-    clientSocket.connect((ip, port))
-    # json으로 보내기 위해 딕셔너리로 변환
-    balls_info = { "balls_data" : balls }
-    weapons_info = { "weapons_data" : weapons}
-    character_info = { "character_data" : character_dic}
-    #데이터 json으로 변환
-    converted_balls_info = json.dumps(balls_info)
-    converted_weapons_info = json.dumps(weapons_info)
-    # converted_character_info = json.dumps(character_info)
-    print("연결 확인됐습니다.")
-    clientSocket.send(converted_balls_info.encode())
-    clientSocket.send(converted_weapons_info.encode())
-    # clientSocket.send(converted_character_info.encode())
 
-    clientSocket.close
-
-    #################################################
+    ##################################################################
      # 5. 화면에 그리기
     screen.blit(background, (0,0))
     for weapon_x_pos, weapon_y_pos in weapons:
@@ -273,4 +260,6 @@ while running:
     
     pygame.display.update() # 게임 화면을 다시 그리기
 
+clientSocket.send("Q".encode("utf-8"))
+clientSocket.close
 pygame.quit() 
