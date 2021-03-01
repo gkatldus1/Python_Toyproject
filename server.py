@@ -59,5 +59,5 @@ class Server:
 			time.sleep(1)
 
 serv = Server("", 5000)
-serv.start();
-serv.start();
+serv.start()
+serv.start()
