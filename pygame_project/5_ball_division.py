@@ -235,7 +235,7 @@ while running:
     #  서버로 볼, 무기, 캐릭터 정보 보내주기
 
     # dict_character = { "data_type" : 1 , "x_pos" : character_x_pos, "y_pos" : character_y_pos }
-    # dict_balls = { "data_type" : 2, "balls" : balls }
+    dict_balls = { "data_type" : 2, "balls" : balls }
     # dict_weapons = { "data_type" : 3, "weapons" : weapons}
     # send_data = json.dumps(dict_character)
     # clientSocket.send(send_data.encode())
@@ -243,13 +243,17 @@ while running:
     # clientSocket.send(send_data.encode())
     # send_data = json.dumps(dict_weapons)
     # clientSocket.send(send_data.encode())
-    send_data = json.dumps(balls)
+    send_data = json.dumps(dict_balls)
     clientSocket.send(send_data.encode())
 
     # 정보 받아주기
     data = clientSocket.recv(1024)
     temp = data.decode()
     converted_type_data = json.loads(temp)
+    if converted_type_data["data_type"] == 2:
+        converted_other_balls = converted_type_data["balls"]
+
+    # converted_type_data = json.loads(temp)
     # if converted_type_data["data_type"] == 1:
     #      converted_other_user = converted_type_data
     # elif converted_type_data["data_type"] == 2:
@@ -257,7 +261,7 @@ while running:
     # elif converted_type_data["data_type"] == 3:
     #     converted_other_weapons = converted_type_data["weapons"]
 
-    converted_other_balls = converted_type_data
+    # converted_other_balls = converted_type_data
 
 
     ##################################################################
@@ -277,11 +281,11 @@ while running:
         ball_img_idx = val["img_idx"]
         screen.blit(ball_images[ball_img_idx], (ball_pos_x, ball_pos_y))
     # 다른 유저 공 그리기
-    # for idx, val in enumerate(another_user_balls):
-    #     ball_pos_x = val["pos_x"]
-    #     ball_pos_y = val["pos_y"]
-    #     ball_img_idx = val["img_idx"]
-    #     screen.blit(ball_images[ball_img_idx], (ball_pos_x, ball_pos_y))
+    for idx, val in enumerate(converted_other_balls):
+        ball_pos_x = val["pos_x"]
+        ball_pos_y = val["pos_y"]
+        ball_img_idx = val["img_idx"]
+        screen.blit(ball_images[ball_img_idx], (ball_pos_x, ball_pos_y))
 
 
     screen.blit(stage, (0, screen_height - stage_height))

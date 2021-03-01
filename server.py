@@ -23,8 +23,8 @@ class Server:
 		while self.accept_loop:
 			client_sock, addr = self.soc.accept()
 			self.clients.append(client_sock)
-			#threading._start_new_thread(self.echo_thread, (client_sock, addr))
-			threading._start_new_thread(self.test, (client_sock, addr))
+			threading._start_new_thread(self.echo_thread, (client_sock, addr))
+			#threading._start_new_thread(self.test, (client_sock, addr))
 		
 		self.soc.close()
 
@@ -48,7 +48,7 @@ class Server:
 		print (str(address[0]) + "//Receive start")
 		while self.loop:
 			try:
-				data = client_socket.recv(512).decode()
+				data = client_socket.recv(1024).decode()
 				print (str(address[0]) + "//Received:" + data)
 				if(data == 'q' or data == 'Q'):
 					print(str(address[0]) + "//client disconnected")
