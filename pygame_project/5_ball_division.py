@@ -82,14 +82,23 @@ balls.append({
 weapon_to_remove = -1
 ball_to_remove = -1
 
+# 게임 폰트
+game_font = pygame.font.Font(None, 40)
+
 # 소켓 연결
 ip = "172.30.1.14"
 port = 5000
 clientSocket = socket(AF_INET, SOCK_STREAM)
 clientSocket.connect((ip, port))
-
+# 메시지 서버로 전송
+clientSocket.send("game start".encode())
+data = clientSocket.recv(1024)
+clientSocket.send("Q".encode())
+clientSocket.close
 running = True
 while running:
+    # 서버로부터 메시지 수신
+
     dt = clock.tick(60)  # 게임화면의 초당 프레임 수를 설정
     # 2. 이벤트 처리 (키보드, 마우스 등)
     for event in pygame.event.get():
@@ -257,9 +266,9 @@ while running:
     screen.blit(character, (character_x_pos, character_y_pos))
     # 다른 유저 캐릭터 그리기
     # screen.blit(another_user_character["character"], (another_user_character["x_pos"], another_user_character["y_pos"]))
-    
+    string = game_font.render(str(data.decode()), True, (255, 255, 255))
+    screen.blit(string, (10, 10) )
     pygame.display.update() # 게임 화면을 다시 그리기
 
-clientSocket.send("Q".encode("utf-8"))
-clientSocket.close
+
 pygame.quit() 
