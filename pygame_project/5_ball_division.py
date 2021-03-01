@@ -93,8 +93,7 @@ clientSocket.connect((ip, port))
 # 메시지 서버로 전송
 clientSocket.send("game start".encode())
 data = clientSocket.recv(1024)
-clientSocket.send("Q".encode())
-clientSocket.close
+
 running = True
 while running:
     # 서버로부터 메시지 수신
@@ -235,8 +234,16 @@ while running:
     ###################################################################
     #  서버로 볼, 무기, 캐릭터 정보 보내주기
 
+    dict_character = { "data_type" : 1 , "x_pos" : character_x_pos, "y_pos" : character_y_pos }
+    send_data = json.dumps(dict_character)
+    clientSocket.send(send_data.encode())
+    data = clientSocket.recv(1024)
 
-    
+    # 정보 받아주기
+    converted_type_data = json.loads(data.decode())
+
+
+
 
     ##################################################################
      # 5. 화면에 그리기
@@ -265,10 +272,11 @@ while running:
     screen.blit(stage, (0, screen_height - stage_height))
     screen.blit(character, (character_x_pos, character_y_pos))
     # 다른 유저 캐릭터 그리기
-    # screen.blit(another_user_character["character"], (another_user_character["x_pos"], another_user_character["y_pos"]))
+    screen.blit(character, (converted_type_data["x_pos"], converted_type_data["y_pos"] - 100))
     string = game_font.render(str(data.decode()), True, (255, 255, 255))
     screen.blit(string, (10, 10) )
     pygame.display.update() # 게임 화면을 다시 그리기
 
-
+clientSocket.send("Q".encode())
+clientSocket.close
 pygame.quit() 
