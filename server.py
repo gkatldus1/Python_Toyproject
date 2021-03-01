@@ -15,6 +15,7 @@ class Server:
 		self.loop = True
 		self.accept_loop = True
 		self.user_count = 0
+		self.count = 0
 		self.user_thread = []
 
 	#시작 함수
@@ -22,8 +23,8 @@ class Server:
 		while self.accept_loop:
 			client_sock, addr = self.soc.accept()
 			self.clients.append(client_sock)
-			threading._start_new_thread(self.echo_thread, (client_sock, addr))
-			#threading._start_new_thread(self.test, (client_sock, addr))
+			#threading._start_new_thread(self.echo_thread, (client_sock, addr))
+			threading._start_new_thread(self.test, (client_sock, addr))
 		
 		self.soc.close()
 
@@ -46,22 +47,7 @@ class Server:
 		#데이터를 수신받고, 수신받은 데이터를 바로 상대에게 전송
 		print (str(address[0]) + "//Receive start")
 		while self.loop:
-			data = client_socket.recv(512).decode()
-			print (str(address[0]) + "//Received:" + data)
-			if(data == 'q' or data == 'Q'):
-				print(str(address[0]) + "//client disconnected")
-				self.loop = False
-				client_socket.close()
-				break
-			else:
-				rival_sock.send(data.encode())
-				print (str(address[0]) + "//Send To:" + data)
-			time.sleep(1)
-
-	def test(self, client_socket, address):
-		try:
-			print ("new connection : " + str(address[0]))
-			while self.loop:
+			try:
 				data = client_socket.recv(512).decode()
 				print (str(address[0]) + "//Received:" + data)
 				if(data == 'q' or data == 'Q'):
@@ -69,7 +55,40 @@ class Server:
 					self.loop = False
 					client_socket.close()
 					break
+				else:
+					rival_sock.send(data.encode())
+					print (str(address[0]) + "//Send To:" + data)
+				time.sleep(1)
+			except BlockingIOError:
+				return False  # socket is open and reading from it would block
+			except ConnectionResetError:
+				return True  # socket was closed for some other reason
+			except Exception as e:
+				print("unexpected exception when checking if a socket is closed")
+				self.loop = False
+				return False
+			return False
+
+	def test(self, client_socket, address):
+		try:
+			print ("new connection : " + str(address[0]))
+			while self.loop:
+				data = client_socket.recv(512).decode()
+				print (str(address[0]) + "//Test Received:" + data + "   count:" + str(self.count))
+				if(data == 'q' or data == 'Q'):
+					print(str(address[0]) + "//client disconnected")
+					self.loop = False
+					client_socket.close()
+					break
+				if data == '':
+					self.count += 1
+					if self.count >= 100:
+						self.loop = False
+				else :
+					self.count = 0
+				print (str(address[0]) + "//Test Send:" + data)
 				client_socket.send(data.encode())
+			self.loop = True
 		except BlockingIOError:
 			return False  # socket is open and reading from it would block
 		except ConnectionResetError:
