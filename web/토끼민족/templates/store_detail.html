@@ -1,0 +1,19 @@
+{% if store_info %}
+    <p>가게 이름: {{ store_info.name }}</p>
+    <p>가게 위치: {{ store_info.location }}</p>
+    <p>가게 번호: {{ store_info.telephone }}</p>
+    <p>가게 별점: {{ store_info.rating }}</p>
+    <p>여는 시간: {{ store_info.open_time }}</p>
+    <p>닫는 시간: {{ store_info.close_time }}</p>
+    <p>찜: {{ store_info.stars }}</p>
+    <hr>
+
+    {% if store_menu %}
+        <h3>메뉴</h3>
+        <ul>
+        {% for menu in store_menu %}
+            <li>{{ menu.food_name }} ({{ menu.price }} 원, {{ menu.description }})</li>
+        {% endfor %}
+        <ul>
+    {% endif %}
+{% endif %}
